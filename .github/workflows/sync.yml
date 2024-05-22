@@ -19,6 +19,8 @@ jobs:
 
             - name: Install dependencies and run build
               run: |
-                  cd /app
+                  cd ../../../../
+                  ls
+                  cd ../
                   npm install
                   npm run build
