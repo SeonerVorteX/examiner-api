@@ -16,9 +16,3 @@ jobs:
                   source_branch: main
                   destination_repo: ${{ secrets.GLITCH_GIT_URL }}
                   destination_branch: main
-
-            - name: Install dependencies and run build
-              run: |
-                  cd /app/
-                  npm install
-                  npm run build
