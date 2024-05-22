@@ -1,14 +1,16 @@
 import { config } from "dotenv";
-import { ErrorManager } from "../helpers/managers/ErrorManager";
-import { APIError } from "../errors/APIError";
 import { Request, Response, NextFunction } from "express";
 import puppeteer from "puppeteer";
 import logger from "./logger";
-
+import Axios from "axios";
+import FormData from "form-data";
+import cheerio from "cheerio";
+import { wrapper } from "axios-cookiejar-support";
+import { CookieJar } from "tough-cookie";
 config();
 
 export const base = (path?: string): string => {
-    return path ? process.env.BASE_URL + path : process.env.BASE_URL;
+    return path ? process.env.UNEC_BASE_URL + path : process.env.UNEC_BASE_URL;
 };
 
 export const host = (path?: string): string => {
@@ -23,69 +25,37 @@ export const requestLogger = (req: Request, _res: Response, next: NextFunction) 
 export async function scrapeUserInformation(
     username: string,
     password: string
-): Promise<{ fullname: string; group: string; email: string } | null> {
-    const browser = await puppeteer.launch({
-        ignoreHTTPSErrors: true,
-        args: [
-            "--proxy-server='direct://'",
-            "--proxy-bypass-list=*",
-            "--disable-gpu",
-            "--disable-dev-shm-usage",
-            "--disable-setuid-sandbox",
-            "--no-first-run",
-            "--no-sandbox",
-            "--no-zygote",
-            "--single-process",
-            "--ignore-certificate-errors",
-            "--ignore-certificate-errors-spki-list",
-            "--enable-features=NetworkService",
-            "--disable-features=site_per_process",
-        ],
-        executablePath:
-            process.env.NODE_ENV === "production" ? process.env.PUPPETEER_EXECUTABLE_PATH : puppeteer.executablePath(),
+): Promise<{ fullname: string; email: string; group: string; groupName: string } | null> {
+    const jar = new CookieJar();
+    const axios = wrapper(Axios.create({ jar, baseURL: base() }));
+
+    let formData = new FormData();
+    formData.append("LoginForm[username]", username, { contentType: "text/plain" });
+    formData.append("LoginForm[password]", password, { contentType: "text/plain" });
+
+    const response = await axios.post("/", formData, {
+        headers: {
+            ...formData.getHeaders(),
+        },
+        withCredentials: true,
     });
 
-    const page = await browser.newPage();
-    await page.goto("http://kabinet.unec.edu.az");
-    await page.waitForSelector("#LoginForm_username");
-    await page.type("#LoginForm_username", username);
-    await page.type("#LoginForm_password", password);
-    await page.keyboard.press("Enter");
-    await page.waitForNavigation();
+    const $ = cheerio.load(response.data);
 
-    if (page.url() !== "http://kabinet.unec.edu.az/az/noteandannounce") {
-        await browser.close();
+    const fullname = $(".right-text-2").eq(0).text() || null;
+    const group = $(".right-text-2").eq(2).text() || null;
+
+    const formResponse = await axios.get(`/az/cabinet`);
+
+    const $$ = cheerio.load(formResponse.data);
+
+    const email = ($$(".form-control").eq(8).val() as string) || null;
+
+    if (!fullname || !group || !email) {
         return null;
+    } else {
+        return { fullname, email, group: group.split("_")[3], groupName: capitalize(group.split("_")[4]) };
     }
-    const pathToInformation = ".main-container > .page-container > .page-content > .right-panel > div";
-    const pathToFullname =
-        ".main-container > .page-container > .page-content > .right-panel > div > .right-text:nth-child(2) > .right-text-2";
-    const pathToGroup =
-        ".main-container > .page-container > .page-content > .right-panel > div > .right-text:nth-child(4) > .right-text-2";
-
-    await page.waitForSelector(pathToInformation);
-    const fullnameText = await page.evaluate((pathToFullname) => {
-        return document.querySelector(pathToFullname)?.textContent;
-    }, pathToFullname);
-
-    const groupText = await page.evaluate((pathToGroup) => {
-        return document.querySelector(pathToGroup)?.textContent;
-    }, pathToGroup);
-    const pathToFormInformation = ".main-container > .page-container > .page-content > .page-body > div";
-    const pathToFormInput =
-        ".main-container > .page-container > .page-content > .page-body > div > .loginbox > form > .loginbox-textbox:nth-child(9) > .form-control";
-
-    await page.goto("http://kabinet.unec.edu.az/az/cabinet");
-    await page.waitForSelector(pathToFormInformation);
-
-    const email = await page.evaluate((pathToFormInput) => {
-        let input = document.querySelector(pathToFormInput) as HTMLInputElement;
-        return input.value;
-    }, pathToFormInput);
-
-    await browser.close();
-
-    return { fullname: fullnameText, group: groupText?.split("_")[3], email };
 }
 
 export function generateRandomQuestionRows(questionCount: number, startPoint: number, endPoint: number): number[] {
@@ -103,4 +73,15 @@ export function generateRandomQuestionRows(questionCount: number, startPoint: nu
         rows.push(row);
     }
     return rows;
+}
+
+function capitalize(text: string): string {
+    let str: string[] = text.split(" ");
+    let result: string[] = [];
+
+    for (let i = 0; i < str.length; i++) {
+        result.push(str[i].charAt(0).toUpperCase() + str[i].slice(1));
+    }
+
+    return result.join(" ");
 }

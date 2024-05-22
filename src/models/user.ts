@@ -5,6 +5,7 @@ export interface UserType extends Document {
     email: string;
     fullname: string;
     group: string;
+    groupName: string;
     authentication?: AuthenticationType;
 }
 
@@ -12,6 +13,7 @@ export const UserSchema = new Schema<UserType>({
     email: { type: String, required: true, unique: true },
     fullname: { type: String, required: true },
     group: { type: String, required: true },
+    groupName: { type: String, required: true },
     authentication: {
         accessToken: { type: String, select: false },
     },

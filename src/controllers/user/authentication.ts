@@ -5,8 +5,8 @@ import { APIError } from "../../errors/APIError";
 import { ErrorManager } from "../../helpers/managers/ErrorManager";
 import { generateTokens } from "../../helpers/security/jwt";
 import { RequestIdentity } from "../../types/types";
-import logger from "../../utils/logger";
 import { scrapeUserInformation } from "../../utils";
+import logger from "../../utils/logger";
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -33,10 +33,10 @@ export const login = async (req: Request, res: Response) => {
             return errorHandler.handleError(new APIError("system", "authentication", "AUTHENTICATION_FAILED"));
         }
 
-        const { email, fullname, group } = unecData;
+        const { email, fullname, group, groupName } = unecData;
 
         // Find or create user
-        const user = await findOrCreateUser(email, { fullname, group });
+        const user = await findOrCreateUser(email, { fullname, group, groupName });
 
         const { accessToken } = await generateTokens(user.toObject());
         user.authentication.accessToken = accessToken;
@@ -48,6 +48,7 @@ export const login = async (req: Request, res: Response) => {
                     email: user.email,
                     fullname: user.fullname,
                     group: user.group,
+                    groupName: user.groupName,
                     accessToken: user.authentication.accessToken,
                 },
             })

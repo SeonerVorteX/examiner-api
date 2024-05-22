@@ -1,6 +1,8 @@
 import { APILogger } from "types/types";
 import { createLogger, addColors, format, transports } from "winston";
+import { config } from "dotenv";
 const { combine, timestamp, printf, colorize, padLevels, prettyPrint, errors } = format;
+config();
 
 const options = {
     levels: {
@@ -21,7 +23,7 @@ const options = {
 
 addColors(options.colors);
 
-const path = process.env.NODE_ENV === "production" ? "./dist" : "./src";
+const path = process.env.NODE_ENV === "production" ? "./logs" : "./src/helpers/logs";
 
 const logger: APILogger = createLogger({
     levels: options.levels,
@@ -36,33 +38,23 @@ const logger: APILogger = createLogger({
     transports: [
         new transports.Console({ level: "console" }),
         new transports.File({
-            filename: `${path}/helpers/logs/info/${new Date(Date.now())
-                .toLocaleDateString()
-                .replaceAll("/", "-")}-info.log`,
+            filename: `${path}/info/${new Date(Date.now()).toLocaleDateString().replaceAll("/", "-")}-info.log`,
             level: "info",
         }),
         new transports.File({
-            filename: `${path}/helpers/logs/warn/${new Date(Date.now())
-                .toLocaleDateString()
-                .replaceAll("/", "-")}-warn.log`,
+            filename: `${path}/warn/${new Date(Date.now()).toLocaleDateString().replaceAll("/", "-")}-warn.log`,
             level: "warn",
         }),
         new transports.File({
-            filename: `${path}/helpers/logs/error/${new Date(Date.now())
-                .toLocaleDateString()
-                .replaceAll("/", "-")}-error.log`,
+            filename: `${path}/error/${new Date(Date.now()).toLocaleDateString().replaceAll("/", "-")}-error.log`,
             level: "error",
         }),
         new transports.File({
-            filename: `${path}/helpers/logs/database/${new Date(Date.now())
-                .toLocaleDateString()
-                .replaceAll("/", "-")}-database.log`,
+            filename: `${path}/database/${new Date(Date.now()).toLocaleDateString().replaceAll("/", "-")}-database.log`,
             level: "database",
         }),
         new transports.File({
-            filename: `${path}/helpers/logs/console/${new Date(Date.now())
-                .toLocaleDateString()
-                .replaceAll("/", "-")}-console.log`,
+            filename: `${path}/console/${new Date(Date.now()).toLocaleDateString().replaceAll("/", "-")}-console.log`,
             level: "console",
         }),
     ],
