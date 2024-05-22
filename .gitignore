@@ -1,0 +1,8 @@
+node_modules
+source
+tests
+logs
+dist
+Todo.md
+.env
+package-lock.json

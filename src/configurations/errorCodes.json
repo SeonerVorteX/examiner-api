@@ -1,0 +1,116 @@
+{
+    "system": {
+        "server": {
+            "INTERNAL_SERVER_ERROR": {
+                "code": 10000,
+                "status": 500,
+                "message": "Internal server error, please try again later"
+            }
+        },
+        "authentication": {
+            "NOT_AUTHENTICATED": {
+                "code": 10100,
+                "status": 401,
+                "message": "You are not authenticated"
+            },
+            "AUTHENTICATION_FAILED": {
+                "code": 10101,
+                "status": 401,
+                "message": "Authentication failed"
+            },
+            "ALREADY_AUTHENTICATED": {
+                "code": 10102,
+                "status": 409,
+                "message": "You are already authenticated"
+            },
+            "MISSING_USERNAME": {
+                "code": 10103,
+                "status": 400,
+                "message": "Invalid body received, username is required"
+            },
+            "MISSING_PASSWORD": {
+                "code": 10104,
+                "status": 400,
+                "message": "Invalid body received, password is required"
+            }
+        },
+        "authorization": {
+            "MISSING_AUTHORIZATION": {
+                "code": 10200,
+                "status": 401,
+                "message": "Authorization header required"
+            },
+            "NOT_AUTHORIZED": {
+                "code": 10201,
+                "status": 401,
+                "message": "You are not authorized to access this"
+            },
+            "AUTHORIZATION_FAILED": {
+                "code": 10202,
+                "status": 401,
+                "message": "Authorization failed"
+            },
+            "ELIGIBILITY_FAILED": {
+                "code": 10203,
+                "status": 401,
+                "message": "You are not eligible to access this"
+            }
+        },
+        "payload": {
+            "INVALID_PAYLOAD": {
+                "code": 10300,
+                "status": 400,
+                "message": "Invalid payload received, %m%"
+            },
+            "MISSING_PROPERTY": {
+                "code": 10301,
+                "status": 400,
+                "message": "Invalid payload received, %p% is required"
+            },
+            "INVALID_PROPERTY": {
+                "code": 10302,
+                "status": 400,
+                "message": "Invalid payload received, %p% is invalid"
+            },
+            "INCORRECT_PROPERTY": {
+                "code": 10303,
+                "status": 400,
+                "message": "%p% is incorrect"
+            }
+        }
+    },
+    "exam": {
+        "payload": {
+            "MISSING_EXAM_ID": {
+                "code": 11200,
+                "status": 400,
+                "message": "Exam ID is required, provide a valid exam ID"
+            },
+            "INVALID_EXAM_ID": {
+                "code": 11201,
+                "status": 400,
+                "message": "Invalid exam ID received"
+            },
+            "INVALID_EXAM": {
+                "code": 11202,
+                "status": 400,
+                "message": "Invalid payload received"
+            },
+            "INVALID_EXAM_DETAILS": {
+                "code": 11203,
+                "status": 400,
+                "message": "Invalid payload received, %m%"
+            },
+            "MISSING_EXAM_DETAILS": {
+                "code": 11204,
+                "status": 400,
+                "message": "Invalid payload received, %p% is required"
+            },
+            "EXAM_NOT_FOUND": {
+                "code": 11205,
+                "status": 400,
+                "message": "Exam not found"
+            }
+        }
+    }
+}

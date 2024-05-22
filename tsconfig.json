@@ -1,0 +1,27 @@
+{                                                          
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "baseUrl": "src",
+        "outDir": "dist",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "resolveJsonModule": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "src/types"
+        ],
+        "lib": [
+            "ES2022", "DOM"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "src/tests",
+        "src/helpers/logs",
+        "storage/"
+    ]
+}
