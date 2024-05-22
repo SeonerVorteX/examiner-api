@@ -9,13 +9,15 @@ jobs:
     sync:
         runs-on: ubuntu-latest
         steps:
-            - name: Sync to Glitch Project
+            - name: Sync to Glitch
               uses: wei/git-sync@v3
               with:
                   source_repo: https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
                   source_branch: main
                   destination_repo: ${{ secrets.GLITCH_GIT_URL }}
                   destination_branch: main
-              name: Build typescript
-              run: npm run build
-              
+
+            - name: Install dependencies and run build
+              run: |
+                  npm install
+                  npm run build
