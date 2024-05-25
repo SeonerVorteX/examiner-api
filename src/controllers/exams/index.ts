@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { EmbedBuilder } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import { Request, Response } from "express";
 import { APIError } from "../../errors/APIError";
 import { ErrorManager } from "../../helpers/managers/ErrorManager";
@@ -159,7 +159,7 @@ export const startExam = async (req: Request, res: Response) => {
 
         res.status(200).json(resData).end();
 
-        const embed = new EmbedBuilder().setColor("Random").addFields([
+        const embed = new MessageEmbed().setColor("RANDOM").addFields([
             { name: "User", value: `*${user.fullname} (\`${user.group}\`)*`, inline: true },
             { name: "Exam", value: `*${resData.details.title} (#${examData.id})*`, inline: true },
             {
@@ -387,7 +387,7 @@ export const finishActiveExam = async (req: Request, res: Response) => {
 
         res.status(200).json({ correctCount, wrongCount, emptyCount, score, scorePercent }).end();
 
-        const embed = new EmbedBuilder().setColor("Random").addFields([
+        const embed = new MessageEmbed().setColor("RANDOM").addFields([
             { name: "User", value: `*${user.fullname} (\`${user.group}\`)*`, inline: true },
             { name: "Exam", value: `*${activeExam.details.title} (#${id})*`, inline: true },
             {

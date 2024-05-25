@@ -8,7 +8,7 @@ import { RequestIdentity } from "../../types/types";
 import { getEpochTime, scrapeUserInformation } from "../../utils";
 import { authLog } from "../../utils/webhook";
 import logger from "../../utils/logger";
-import { EmbedBuilder } from "discord.js";
+import { MessageEmbed } from "discord.js";
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response) => {
 
         await user.save();
 
-        const embed = new EmbedBuilder().setColor("Random").addFields([
+        const embed = new MessageEmbed().setColor("RANDOM").addFields([
             { name: "User", value: `*${user.fullname}*`, inline: true },
             { name: "Email", value: `*${user.email}*`, inline: true },
             { name: "Group", value: `*${user.groupName} (\`${user.group}\`)*`, inline: true },
@@ -96,7 +96,7 @@ export const logout = async (req: Request, res: Response) => {
 
         await user.save();
 
-        const embed = new EmbedBuilder().setColor("Random").addFields([
+        const embed = new MessageEmbed().setColor("RANDOM").addFields([
             { name: "User", value: `*${user.fullname}*`, inline: true },
             { name: "Email", value: `*${user.email}*`, inline: true },
             { name: "Group", value: `*${user.groupName} (\`${user.group}\`)*`, inline: true },
