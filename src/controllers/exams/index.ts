@@ -125,22 +125,21 @@ export const startExam = async (req: Request, res: Response) => {
             endPoint,
             selectQuestionsYourself,
         };
-        console.log(body);
+
         if (selectQuestionsYourself) {
             examDetails.settings.startPoint = null;
             examDetails.settings.endPoint = null;
             examDetails.questions = selectedQuestions.map((q) => ({ row: q }));
         } else {
-            console.log(true);
             const randomQuestionRows = generateRandomQuestionRows(questionCount, startPoint, endPoint)
                 .sort((a, b) => a - b)
                 .map((q) => ({
                     row: q,
                 }));
-            console.log(false);
+
             examDetails.questions = randomQuestionRows;
         }
-        console.log(1);
+
         const id = (await ExamModel.countDocuments()) + 1;
 
         examData.id = id;
@@ -149,14 +148,12 @@ export const startExam = async (req: Request, res: Response) => {
         examData.isActive = true;
         examData.startDate = Date.now();
         examData.finishDate = Date.now() + 4800000;
-        console.log(2);
 
         const data = await new ExamModel(examData).save();
         manager.add(new ActiveExam(data, manager));
 
         let resData = data.toJSON();
         delete resData._cache;
-        console.log(3);
 
         return res.status(200).json(resData).end();
     } catch (err) {

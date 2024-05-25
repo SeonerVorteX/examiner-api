@@ -64,7 +64,6 @@ export function generateRandomQuestionRows(questionCount: number, startPoint: nu
         questionCount = endPoint - startPoint + 1;
     }
     for (let i = 0; i < questionCount; i++) {
-        console.log(i);
         let row = Math.floor(Math.random() * (endPoint - startPoint + 1) + startPoint);
         if (rows.includes(row)) {
             i--;

@@ -127,7 +127,7 @@ export class ActiveExam {
 
         emptyCount = this.details.questions.filter((q) => answers.every((a) => a.question !== q.row)).length;
         score = correctCount * pointPerCorrect;
-        scorePercent = (correctCount / this.details.settings.questionCount) * 100;
+        scorePercent = Math.round((correctCount / this.details.settings.questionCount) * 100);
 
         return {
             correctCount,
