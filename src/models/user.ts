@@ -33,6 +33,6 @@ export const getUserByAccessToken = (accessToken: string, select?: string) =>
         "authentication.accessToken": accessToken,
     }).select(select);
 export const getUserById = (id: string, select?: string) => UserModel.findById(id).select(select);
-export const createUser = (values: Record<string, any>) => new UserModel(values).save().then((user: any) => user);
+export const createUser = (values: Record<string, any>) => new UserModel(values).save().then((user) => user);
 export const deleteUserById = (id: string) => UserModel.findOneAndDelete({ _id: id });
 export const updateUserById = (id: string, values: Record<string, any>) => UserModel.findByIdAndUpdate(id, values);

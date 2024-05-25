@@ -9,6 +9,7 @@ export interface UserType {
     _id: ObjectId;
     email: string;
     group: string;
+    groupName: string;
     fullname: string;
     authentication?: AuthenticationType;
     createdDate?: number;

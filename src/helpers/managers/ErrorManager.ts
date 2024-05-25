@@ -10,13 +10,16 @@ export class ErrorManager {
         this.res = res;
     }
 
-    public addError<T extends keyof APIErrors, U extends keyof APIErrors[T], V extends keyof APIErrors[T][U]>(err: APIError<T, U, V>, options?: { [key: string]: string }) {
+    public addError<T extends keyof APIErrors, U extends keyof APIErrors[T], V extends keyof APIErrors[T][U]>(
+        err: APIError<T, U, V>,
+        options?: { [key: string]: string }
+    ) {
         if (options) {
-            Object.keys(options).forEach(key => {
+            Object.keys(options).forEach((key) => {
                 err.message = err.message.replaceAll(`%${key}%`, options[key]);
             });
         }
-        
+
         this.errors.push(err);
         return this;
     }
@@ -34,15 +37,18 @@ export class ErrorManager {
         return this;
     }
 
-    public handleError<T extends keyof APIErrors, U extends keyof APIErrors[T], V extends keyof APIErrors[T][U]>(err: APIError<T, U, V>, options?: { [key: string]: string }) {
+    public handleError<T extends keyof APIErrors, U extends keyof APIErrors[T], V extends keyof APIErrors[T][U]>(
+        err: APIError<T, U, V>,
+        options?: { [key: string]: string }
+    ) {
         let { code, status, message, field } = err;
 
-        if(options) {
-            Object.keys(options).forEach(key => {
-                message = message.replaceAll(`%${key}%`, options[key])
+        if (options) {
+            Object.keys(options).forEach((key) => {
+                message = message.replaceAll(`%${key}%`, options[key]);
             });
         }
-        
+
         let payload: ErrorPayload = { code, message };
         return this.res.status(status).json({ errors: { [field]: payload } });
     }
@@ -52,10 +58,9 @@ export class ErrorManager {
         if (errors.length > 0) {
             let payload: MultipleErrorPayload = { errors: {} };
 
-
-            errors.forEach(err => {
+            errors.forEach((err) => {
                 const { code, field, message } = err;
-                let length = errors.filter(error => error.field === field).length;
+                let length = errors.filter((error) => error.field === field).length;
 
                 if (length > 1) {
                     if (!payload.errors[field]) {
@@ -66,7 +71,6 @@ export class ErrorManager {
                 } else {
                     payload.errors[field] = { code, message };
                 }
-
             });
 
             return this.res.status(400).json(payload), this.clearErrors();

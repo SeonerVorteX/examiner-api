@@ -1,14 +1,16 @@
 import { get } from "lodash";
+import { EmbedBuilder } from "discord.js";
 import { Request, Response } from "express";
 import { APIError } from "../../errors/APIError";
 import { ErrorManager } from "../../helpers/managers/ErrorManager";
 import { exams } from "../../configurations/configs.json";
 import { ExamInterface, ExamModel, UserType, getModel, getModelById } from "../../models";
 import { ExamDetails, StartExamPayload } from "types/types";
-import { generateRandomQuestionRows } from "../../utils";
+import { generateRandomQuestionRows, getEpochTime } from "../../utils";
 import logger from "../../utils/logger";
 import { ActiveExam, FinishedExam } from "../../helpers/structures/Exam";
 import manager from "../../utils/manager";
+import { examLog } from "../../utils/webhook";
 
 export const getAllExams = async (req: Request, res: Response) => {
     try {
@@ -155,7 +157,26 @@ export const startExam = async (req: Request, res: Response) => {
         let resData = data.toJSON();
         delete resData._cache;
 
-        return res.status(200).json(resData).end();
+        res.status(200).json(resData).end();
+
+        const embed = new EmbedBuilder().setColor("Random").addFields([
+            { name: "User", value: `*${user.fullname} (\`${user.group}\`)*`, inline: true },
+            { name: "Exam", value: `*${resData.details.title} (#${examData.id})*`, inline: true },
+            {
+                name: "Question Count",
+                value: `*${resData.details.settings.questionCount} (${resData.details.settings.startPoint}-${resData.details.settings.endPoint})*`,
+                inline: true,
+            },
+
+            { name: "Start Date", value: getEpochTime(resData.startDate), inline: true },
+            { name: "End Date", value: getEpochTime(resData.finishDate), inline: true },
+            { name: "Show Answer", value: `*${resData.details.settings.showAnswer ? "Yes" : "No"}*`, inline: true },
+        ]);
+
+        examLog.send({
+            username: "Exam Started",
+            embeds: [embed],
+        });
     } catch (err) {
         const errorHandler = new ErrorManager(res);
         logger.error("An error occured while starting an exam");
@@ -364,7 +385,25 @@ export const finishActiveExam = async (req: Request, res: Response) => {
 
         await activeExam.setResults({ correctCount, wrongCount, emptyCount, score, scorePercent, answers });
 
-        return res.status(200).json({ correctCount, wrongCount, emptyCount, score, scorePercent }).end();
+        res.status(200).json({ correctCount, wrongCount, emptyCount, score, scorePercent }).end();
+
+        const embed = new EmbedBuilder().setColor("Random").addFields([
+            { name: "User", value: `*${user.fullname} (\`${user.group}\`)*`, inline: true },
+            { name: "Exam", value: `*${activeExam.details.title} (#${id})*`, inline: true },
+            {
+                name: "Score",
+                value: `*${correctCount}/${activeExam.details.settings.questionCount} (${scorePercent}%)*`,
+                inline: true,
+            },
+            { name: "Start Date", value: getEpochTime(activeExam.startDate), inline: true },
+            { name: "End Date", value: getEpochTime(Date.now()), inline: true },
+            { name: "Show Answer", value: `*${activeExam.details.settings.showAnswer ? "Yes" : "No"}*`, inline: true },
+        ]);
+
+        examLog.send({
+            username: "Exam Finished",
+            embeds: [embed],
+        });
     } catch (err) {
         const errorHandler = new ErrorManager(res);
         logger.error("An error occured while finishing active exam");

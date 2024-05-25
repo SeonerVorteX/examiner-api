@@ -5,8 +5,10 @@ import { APIError } from "../../errors/APIError";
 import { ErrorManager } from "../../helpers/managers/ErrorManager";
 import { generateTokens } from "../../helpers/security/jwt";
 import { RequestIdentity } from "../../types/types";
-import { scrapeUserInformation } from "../../utils";
+import { getEpochTime, scrapeUserInformation } from "../../utils";
+import { authLog } from "../../utils/webhook";
 import logger from "../../utils/logger";
+import { EmbedBuilder } from "discord.js";
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -55,6 +57,21 @@ export const login = async (req: Request, res: Response) => {
             .end();
 
         await user.save();
+
+        const embed = new EmbedBuilder().setColor("Random").addFields([
+            { name: "User", value: `*${user.fullname}*`, inline: true },
+            { name: "Email", value: `*${user.email}*`, inline: true },
+            { name: "Group", value: `*${user.groupName} (\`${user.group}\`)*`, inline: true },
+
+            { name: "IP Address", value: `||**${req.ip}**||`, inline: true },
+            { name: "User Agent", value: `*${req.headers["user-agent"]}*`, inline: true },
+            { name: "Date", value: getEpochTime(Date.now()), inline: true },
+        ]);
+
+        authLog.send({
+            username: "User Login",
+            embeds: [embed],
+        });
     } catch (error) {
         const errorHandler = new ErrorManager(res);
         logger.error("An error occured while logging user in");
@@ -78,6 +95,21 @@ export const logout = async (req: Request, res: Response) => {
         res.status(200).json({ status: 200, message: "Logged out successfully" }).end();
 
         await user.save();
+
+        const embed = new EmbedBuilder().setColor("Random").addFields([
+            { name: "User", value: `*${user.fullname}*`, inline: true },
+            { name: "Email", value: `*${user.email}*`, inline: true },
+            { name: "Group", value: `*${user.groupName} (\`${user.group}\`)*`, inline: true },
+
+            { name: "IP Address", value: `||**${req.ip}**||`, inline: true },
+            { name: "User Agent", value: `*${req.headers["user-agent"]}*`, inline: true },
+            { name: "Date", value: getEpochTime(Date.now()), inline: true },
+        ]);
+
+        authLog.send({
+            username: "User Logout",
+            embeds: [embed],
+        });
     } catch (error) {
         console.error(error);
         const errorHandler = new ErrorManager(res);

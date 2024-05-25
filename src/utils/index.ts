@@ -1,6 +1,5 @@
 import { config } from "dotenv";
 import { Request, Response, NextFunction } from "express";
-import puppeteer from "puppeteer";
 import logger from "./logger";
 import Axios from "axios";
 import FormData from "form-data";
@@ -74,7 +73,7 @@ export function generateRandomQuestionRows(questionCount: number, startPoint: nu
     return rows;
 }
 
-function capitalize(text: string): string {
+export function capitalize(text: string): string {
     let str: string[] = text.split(" ");
     let result: string[] = [];
 
@@ -83,4 +82,11 @@ function capitalize(text: string): string {
     }
 
     return result.join(" ");
+}
+
+export function getEpochTime(time: number, { type } = { type: 1 }) {
+    if (typeof time !== "number" && isNaN(time)) throw new TypeError("Invalid Argumanet: Time");
+
+    if (type == 2) return `<t:${time.toString().slice(0, -3)}:R>`;
+    else return `<t:${time.toString().slice(0, -3)}>`;
 }
