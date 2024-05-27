@@ -14,7 +14,11 @@ import { examLog } from "../../utils/webhook";
 
 export const getAllExams = async (req: Request, res: Response) => {
     try {
-        return res.status(200).json(exams).end();
+        const user = get(req, "identity.user") as UserType;
+        const group = user.group;
+        const data = exams.filter((exam) => exam.eligibleGroups.includes(group));
+
+        return res.status(200).json(data).end();
     } catch (err) {
         const errorHandler = new ErrorManager(res);
         logger.error("An error occured while getting all exams");
@@ -27,7 +31,13 @@ export const getExam = async (req: Request, res: Response) => {
     try {
         const errorManager = new ErrorManager(res);
         const examId = parseInt(get(req, "params.examId"));
-        const exam = exams.find((exam) => exam.id == examId) as { id: number; title: string; shortName: string };
+        const user = get(req, "identity.user") as UserType;
+        const group = user.group;
+        const exam = exams.filter((exam) => exam.eligibleGroups.includes(group)).find((exam) => exam.id == examId) as {
+            id: number;
+            title: string;
+            shortName: string;
+        };
 
         if (!exam) {
             return errorManager.handleError(new APIError("exam", "payload", "EXAM_NOT_FOUND"));
@@ -53,12 +63,17 @@ export const startExam = async (req: Request, res: Response) => {
         const errorManager = new ErrorManager(res);
         const body = get(req, "body") as StartExamPayload;
         const user = get(req, "identity.user") as UserType;
+        const group = user.group;
         const examId = parseInt(get(req, "params.examId"));
 
         if (!examId || isNaN(examId) || examId < 1) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_ID"));
         }
-        const exam = exams.find((exam) => exam.id == examId) as { id: number; title: string };
+        const exam = exams.filter((exam) => exam.eligibleGroups.includes(group)).find((exam) => exam.id == examId) as {
+            id: number;
+            title: string;
+            shortName: string;
+        };
 
         if (!exam) {
             errorManager.handleError(new APIError("exam", "payload", "EXAM_NOT_FOUND"));

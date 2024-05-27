@@ -12,21 +12,21 @@ import {
     getQuestionForFinishedExam,
     startExam,
 } from "../../controllers/exams";
-import { isAuthenticated, isEligible } from "../../middlewares";
+import { isAuthenticated } from "../../middlewares";
 
 const router = Router();
 
 export default (): Router => {
     router.get("/all", isAuthenticated, getAllExams);
     router.get("/:examId", isAuthenticated, getExam);
-    router.post("/:examId/start", isAuthenticated, isEligible, startExam);
-    router.get("/active/:id", isAuthenticated, isEligible, getActiveExam);
-    router.get("/active/:id/questions", isAuthenticated, isEligible, getAllQuestionsForActiveExam);
-    router.get("/active/:id/questions/:row", isAuthenticated, isEligible, getQuestionForActiveExam);
-    router.post("/active/:id/answers", isAuthenticated, isEligible, setAnswersForActiveExam);
-    router.get("/active/:id/finish", isAuthenticated, isEligible, finishActiveExam);
-    router.get("/finished/:id", isAuthenticated, isEligible, getFinishedExam);
-    router.get("/finished/:id/questions", isAuthenticated, isEligible, getAllQuestionsForFinishedExam);
-    router.get("/finished/:id/questions/:row", isAuthenticated, isEligible, getQuestionForFinishedExam);
+    router.post("/:examId/start", isAuthenticated, startExam);
+    router.get("/active/:id", isAuthenticated, getActiveExam);
+    router.get("/active/:id/questions", isAuthenticated, getAllQuestionsForActiveExam);
+    router.get("/active/:id/questions/:row", isAuthenticated, getQuestionForActiveExam);
+    router.post("/active/:id/answers", isAuthenticated, setAnswersForActiveExam);
+    router.get("/active/:id/finish", isAuthenticated, finishActiveExam);
+    router.get("/finished/:id", isAuthenticated, getFinishedExam);
+    router.get("/finished/:id/questions", isAuthenticated, getAllQuestionsForFinishedExam);
+    router.get("/finished/:id/questions/:row", isAuthenticated, getQuestionForFinishedExam);
     return router;
 };

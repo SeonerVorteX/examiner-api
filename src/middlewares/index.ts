@@ -6,7 +6,6 @@ import { ErrorManager } from "../helpers/managers/ErrorManager";
 import { APIError } from "../errors/APIError";
 import { verifyAccessToken } from "../helpers/security/jwt";
 import { RequestIdentity } from "types/types";
-import { eligibleGroups } from "../configurations/configs.json";
 
 export const checkUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -52,19 +51,19 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     }
 };
 
-export const isEligible = async (req: Request, res: Response, next: NextFunction) => {
-    const identity: RequestIdentity = get(req, "identity");
-    const errorHandler = new ErrorManager(res);
+// export const isEligible = async (req: Request, res: Response, next: NextFunction) => {
+//     const identity: RequestIdentity = get(req, "identity");
+//     const errorHandler = new ErrorManager(res);
 
-    if (!identity.user) {
-        return errorHandler.handleError(new APIError("system", "authorization", "AUTHORIZATION_FAILED"));
-    }
+//     if (!identity.user) {
+//         return errorHandler.handleError(new APIError("system", "authorization", "AUTHORIZATION_FAILED"));
+//     }
 
-    const userGroup = identity.user.group;
+//     const userGroup = identity.user.group;
 
-    if (!eligibleGroups.includes(userGroup)) {
-        return errorHandler.handleError(new APIError("system", "authorization", "ELIGIBILITY_FAILED"));
-    } else {
-        return next();
-    }
-};
+//     if (!eligibleGroups.includes(userGroup)) {
+//         return errorHandler.handleError(new APIError("system", "authorization", "ELIGIBILITY_FAILED"));
+//     } else {
+//         return next();
+//     }
+// };

@@ -17,6 +17,7 @@ console.clear();
 
 config();
 const app = express();
+app.enable("trust proxy");
 
 // Middlewares
 app.use(
@@ -25,7 +26,6 @@ app.use(
         credentials: true,
     })
 );
-
 app.use(flash());
 app.use(compression());
 app.use(cookieParser());
