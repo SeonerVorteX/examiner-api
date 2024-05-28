@@ -1,5 +1,5 @@
 import { ObjectId, Schema, model } from "mongoose";
-import { exams } from "../../configs.json";
+import { exams } from "../configurations/configs.json";
 
 export interface QuestionType {
     row: number;

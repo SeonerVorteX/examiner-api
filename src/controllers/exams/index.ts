@@ -3,7 +3,7 @@ import { MessageEmbed } from "discord.js";
 import { Request, Response } from "express";
 import { APIError } from "../../errors/APIError";
 import { ErrorManager } from "../../helpers/managers/ErrorManager";
-import { exams } from "../../../configs.json";
+import { exams } from "../../configurations/configs.json";
 import { ExamInterface, ExamModel, UserType, getModelById } from "../../models";
 import { ExamDetails, StartExamPayload } from "types/types";
 import { generateRandomQuestionRows, getEpochTime } from "../../utils";
