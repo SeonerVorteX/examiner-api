@@ -5,6 +5,8 @@ export interface QuestionType {
     row: number;
     question: {
         isImage: boolean;
+        isBoth: boolean;
+        imgValue: number;
         value: string | number | ObjectId;
     };
     answer: Option;
@@ -19,6 +21,8 @@ interface Option {
 
 export interface ImageType {
     id: number;
+    type: number;
+    bothId?: number;
     data: Buffer;
 }
 
@@ -33,6 +37,13 @@ export const QuestionSchema = new Schema<QuestionType>({
     row: { type: Number, required: true },
     question: {
         isImage: { type: Boolean, required: true },
+        isBoth: { type: Boolean, default: false },
+        imgValue: {
+            type: Number,
+            required: function () {
+                return this.question.isBoth;
+            },
+        },
         value: { type: Schema.Types.Mixed, required: true },
     },
     answer: {
@@ -51,27 +62,14 @@ export const QuestionSchema = new Schema<QuestionType>({
 
 export const ImageSchema = new Schema<ImageType>({
     id: Number,
+    type: { type: Number, default: 1 },
+    bothId: { type: Number },
     data: Buffer,
-    // question: Schema.Types.ObjectId,
 });
 
-// const ExamSchema = new Schema<ExamType>({
-//     title: String,
-//     shortName: String,
-//     questions: [QuestionSchema],
-//     images: [ImageSchema],
-// });
-
-export const getModel = (name: string) => {
-    const questions = model(`${name}_questions`, QuestionSchema);
-    const images = model(`${name}_images`, ImageSchema);
+export const getModelById = (id: number) => {
+    const exam = exams.find((exam) => exam.id == id);
+    const questions = model(`${exam.id}_questions`, QuestionSchema);
+    const images = model(`${exam.id}_images`, ImageSchema);
     return { questions, images };
 };
-
-export const getModelById = (id: number) => {
-    const name = exams.find((exam) => exam.id == id)?.shortName;
-    if (!name) return null;
-    return getModel(name);
-};
-
-// export const ExamModel = model("exams", ExamSchema);

@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { APIError } from "../../errors/APIError";
 import { ErrorManager } from "../../helpers/managers/ErrorManager";
 import { exams } from "../../configurations/configs.json";
-import { ExamInterface, ExamModel, UserType, getModel, getModelById } from "../../models";
+import { ExamInterface, ExamModel, UserType, getModelById } from "../../models";
 import { ExamDetails, StartExamPayload } from "types/types";
 import { generateRandomQuestionRows, getEpochTime } from "../../utils";
 import logger from "../../utils/logger";
@@ -43,7 +43,7 @@ export const getExam = async (req: Request, res: Response) => {
             return errorManager.handleError(new APIError("exam", "payload", "EXAM_NOT_FOUND"));
         }
 
-        const { questions } = getModel(exam.shortName);
+        const { questions } = getModelById(exam.id);
         const questionCount = await questions.countDocuments();
 
         return res
@@ -79,7 +79,7 @@ export const startExam = async (req: Request, res: Response) => {
             errorManager.handleError(new APIError("exam", "payload", "EXAM_NOT_FOUND"));
         }
 
-        const { questions, images } = getModelById(exam.id);
+        const { questions } = getModelById(exam.id);
         const examQuestionCount = await questions.countDocuments();
 
         const examData = {} as ExamInterface;
@@ -489,7 +489,6 @@ export const getAllQuestionsForFinishedExam = async (req: Request, res: Response
 };
 
 export const getQuestionForFinishedExam = async (req: Request, res: Response) => {
-    // with user answer
     try {
         const errorManager = new ErrorManager(res);
         const identity = get(req, "identity") as { user: UserType };

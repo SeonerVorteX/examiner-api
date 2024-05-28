@@ -6,3 +6,4 @@ dist
 Todo.md
 .env
 package-lock.json
+configs.json
