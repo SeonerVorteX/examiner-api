@@ -61,7 +61,10 @@ export class ActiveExam {
         let question = (await QuestionModel.findOne({ row })).toJSON();
         let showAnswer = this.details.settings.showAnswer;
 
-        if (question.question.isImage) {
+        if (question.question.isBoth) {
+            let image = await ImageModel.findOne({ bothId: question.question.imgValue });
+            images.push(image.toJSON());
+        } else if (question.question.isImage) {
             let image = await ImageModel.findOne({ id: question.question.value });
             images.push(image.toJSON());
         }
@@ -251,7 +254,10 @@ export class FinishedExam {
         let question = (await QuestionModel.findOne({ row })).toJSON();
         let showAnswer = this.details.settings.showAnswer;
 
-        if (question.question.isImage) {
+        if (question.question.isBoth) {
+            let image = await ImageModel.findOne({ bothId: question.question.imgValue });
+            images.push(image.toJSON());
+        } else if (question.question.isImage) {
             let image = await ImageModel.findOne({ id: question.question.value });
             images.push(image.toJSON());
         }
