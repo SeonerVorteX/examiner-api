@@ -394,19 +394,20 @@ export const finishActiveExam = async (req: Request, res: Response) => {
             return errorManager.handleError(new APIError("system", "authorization", "NOT_AUTHORIZED"));
         }
 
-        const { correctCount, wrongCount, emptyCount, score, scorePercent, answers } =
-            await activeExam.calculateResults();
+        console.log(Date.now());
 
-        await activeExam.setResults({ correctCount, wrongCount, emptyCount, score, scorePercent, answers });
+        await activeExam.calculateResults();
 
-        res.status(200).json({ correctCount, wrongCount, emptyCount, score, scorePercent }).end();
+        console.log(Date.now());
+
+        res.status(200).end();
 
         const embed = new MessageEmbed().setColor("RANDOM").addFields([
             { name: "User", value: `*${user.fullname} (\`${user.group}\`)*`, inline: true },
             { name: "Exam", value: `*${activeExam.details.title} (#${id})*`, inline: true },
             {
                 name: "Score",
-                value: `*${correctCount}/${activeExam.details.settings.questionCount} (${scorePercent}%)*`,
+                value: `*${activeExam.results.correctCount}/${activeExam.details.settings.questionCount} (${activeExam.results.scorePercent}%)*`,
                 inline: true,
             },
             { name: "Start Date", value: getEpochTime(activeExam.startDate), inline: true },

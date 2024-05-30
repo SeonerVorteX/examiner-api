@@ -40,7 +40,7 @@ export class ActiveExam {
         })();
     }
 
-    public async getQuestions() {
+    public async getQuestions(shorted?: boolean) {
         // let examQuestions = this.details.questions;
         // let questions: QuestionType[] = [];
         // let images: ImageType[] = [];
@@ -53,26 +53,55 @@ export class ActiveExam {
 
         let { questions: QuestionModel, images: ImageModel } = getModelById(this.details.examId);
         let examQuestions = this.details.questions;
-        let imgValues: number[] = [];
-        let questions = await QuestionModel.find({ row: { $in: examQuestions.map((q) => q.row) } });
-        let showAnswer = this.details.settings.showAnswer;
 
-        for (let question of questions) {
-            if (!showAnswer) delete question.answer;
+        if (shorted) {
+            // return only questions (without its content, just answers)
+            let questions = await QuestionModel.aggregate([
+                {
+                    $match: {
+                        row: { $in: examQuestions.map((q) => q.row) },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        row: 1,
+                        options: {
+                            $map: {
+                                input: "$options",
+                                as: "option",
+                                in: {
+                                    isCorrect: "$$option.isCorrect",
+                                },
+                            },
+                        },
+                    },
+                },
+            ]);
 
-            if (question.question.isBoth) imgValues.push(question.question.imgValue);
-            if (question.question.isImage) imgValues.push(question.question.value as number);
-            for (let option of question.options) {
-                if (!showAnswer) delete option.isCorrect;
-                if (option.isImage) imgValues.push(option.value as number);
+            return { questions };
+        } else {
+            let imgValues: number[] = [];
+            let questions = await QuestionModel.find({ row: { $in: examQuestions.map((q) => q.row) } });
+            let showAnswer = this.details.settings.showAnswer;
+
+            for (let question of questions) {
+                if (!showAnswer) delete question.answer;
+
+                if (question.question.isBoth) imgValues.push(question.question.imgValue);
+                if (question.question.isImage) imgValues.push(question.question.value as number);
+                for (let option of question.options) {
+                    if (!showAnswer) delete option.isCorrect;
+                    if (option.isImage) imgValues.push(option.value as number);
+                }
             }
+
+            let images = await ImageModel.find({
+                $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
+            });
+
+            return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
         }
-
-        let images = await ImageModel.find({
-            $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
-        });
-
-        return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
     }
 
     public async getQuestion(row: number, getAnswer?: boolean) {
@@ -138,9 +167,12 @@ export class ActiveExam {
         let scorePercent = 0;
         let pointPerCorrect = 2;
 
+        let { questions } = await this.getQuestions(true);
+        console.log(questions);
+
         for (let answer of answers) {
             let { question, index } = answer;
-            let { options } = (await this.getQuestion(question, true)).question;
+            let { options } = questions.find((q) => q.row === question);
 
             if (options[index].isCorrect) {
                 correctCount++;
@@ -153,14 +185,14 @@ export class ActiveExam {
         score = correctCount * pointPerCorrect;
         scorePercent = Math.round((correctCount / this.details.settings.questionCount) * 100);
 
-        return {
+        await this.setResults({
             correctCount,
             wrongCount,
             emptyCount,
             score,
             scorePercent,
             answers: answers.map((a) => ({ question: { row: a.question }, index: a.index })),
-        };
+        });
     }
 
     public async setCachedAnswers(answers: { question: number; index: number }[]) {
@@ -191,10 +223,7 @@ export class ActiveExam {
 
     private setExamTimeout(): NodeJS.Timeout {
         return setTimeout(async () => {
-            const { correctCount, wrongCount, emptyCount, score, scorePercent, answers } =
-                await this.calculateResults();
-
-            await this.setResults({ correctCount, wrongCount, emptyCount, score, scorePercent, answers });
+            await this.calculateResults();
             logger.info(`Exam #${this.id} finished automatically.`);
         }, this.finishDate + 10000 - Date.now()); // Extra 10 seconds for the client to send the results
     }
