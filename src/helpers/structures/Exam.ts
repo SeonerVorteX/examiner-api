@@ -41,17 +41,38 @@ export class ActiveExam {
     }
 
     public async getQuestions() {
-        let examQuestions = this.details.questions;
-        let questions: QuestionType[] = [];
-        let images: ImageType[] = [];
+        // let examQuestions = this.details.questions;
+        // let questions: QuestionType[] = [];
+        // let images: ImageType[] = [];
 
-        for (let examQuestion of examQuestions) {
-            const { question, images: questionImages } = await this.getQuestion(examQuestion.row);
-            questions.push(question);
-            images = images.concat(questionImages);
+        // for (let examQuestion of examQuestions) {
+        //     const { question, images: questionImages } = await this.getQuestion(examQuestion.row);
+        //     questions.push(question);
+        //     images = images.concat(questionImages);
+        // }
+
+        let { questions: QuestionModel, images: ImageModel } = getModelById(this.details.examId);
+        let examQuestions = this.details.questions;
+        let imgValues: number[] = [];
+        let questions = await QuestionModel.find({ row: { $in: examQuestions.map((q) => q.row) } });
+        let showAnswer = this.details.settings.showAnswer;
+
+        for (let question of questions) {
+            if (!showAnswer) delete question.answer;
+
+            if (question.question.isBoth) imgValues.push(question.question.imgValue);
+            if (question.question.isImage) imgValues.push(question.question.value as number);
+            for (let option of question.options) {
+                if (!showAnswer) delete option.isCorrect;
+                if (option.isImage) imgValues.push(option.value as number);
+            }
         }
 
-        return { questions, images };
+        let images = await ImageModel.find({
+            $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
+        });
+
+        return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
     }
 
     public async getQuestion(row: number, getAnswer?: boolean) {
@@ -234,25 +255,31 @@ export class FinishedExam {
     }
 
     public async getQuestions() {
+        let { questions: QuestionModel, images: ImageModel } = getModelById(this.details.examId);
         let examQuestions = this.details.questions;
-        let questions: QuestionType[] = [];
-        let images: ImageType[] = [];
+        let imgValues: number[] = [];
+        let questions = await QuestionModel.find({ row: { $in: examQuestions.map((q) => q.row) } });
 
-        for (let examQuestion of examQuestions) {
-            const { question, images: questionImages } = await this.getQuestion(examQuestion.row);
-            questions.push(question);
-            images = images.concat(questionImages);
+        for (let question of questions) {
+            if (question.question.isBoth) imgValues.push(question.question.imgValue);
+            if (question.question.isImage) imgValues.push(question.question.value as number);
+            for (let option of question.options) {
+                if (option.isImage) imgValues.push(option.value as number);
+            }
         }
 
-        return { questions, images };
+        let images = await ImageModel.find({
+            $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
+        });
+
+        return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
     }
 
-    public async getQuestion(row: number, getAnswer?: boolean) {
+    public async getQuestion(row: number) {
         let { questions: QuestionModel, images: ImageModel } = getModelById(this.details.examId);
 
         let images: ImageType[] = [];
         let question = (await QuestionModel.findOne({ row })).toJSON();
-        let showAnswer = this.details.settings.showAnswer;
 
         if (question.question.isBoth) {
             let image = await ImageModel.findOne({ bothId: question.question.imgValue });
@@ -262,9 +289,7 @@ export class FinishedExam {
             images.push(image.toJSON());
         }
 
-        if (this.isActive && !showAnswer && !getAnswer) delete question.answer;
         for (let option of question.options) {
-            if (this.isActive && !showAnswer && !getAnswer) delete option.isCorrect;
             if (option.isImage) {
                 let image = await ImageModel.findOne({ id: option.value });
                 images.push(image.toJSON());

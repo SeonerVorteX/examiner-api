@@ -16,7 +16,9 @@ export const getAllExams = async (req: Request, res: Response) => {
     try {
         const user = get(req, "identity.user") as UserType;
         const group = user.group;
-        const data = exams.filter((exam) => exam.eligibleGroups.includes(group));
+        const data = exams
+            .filter((exam) => exam.eligibleGroups.includes(group))
+            .map((exam) => ({ id: exam.id, title: exam.title }));
 
         return res.status(200).json(data).end();
     } catch (err) {
@@ -33,10 +35,12 @@ export const getExam = async (req: Request, res: Response) => {
         const examId = parseInt(get(req, "params.examId"));
         const user = get(req, "identity.user") as UserType;
         const group = user.group;
-        const exam = exams.filter((exam) => exam.eligibleGroups.includes(group)).find((exam) => exam.id == examId) as {
+        const exam = exams
+            .filter((exam) => exam.eligibleGroups.includes(group))
+            .map((exam) => ({ id: exam.id, title: exam.title }))
+            .find((exam) => exam.id == examId) as {
             id: number;
             title: string;
-            shortName: string;
         };
 
         if (!exam) {
@@ -148,11 +152,9 @@ export const startExam = async (req: Request, res: Response) => {
             examDetails.settings.endPoint = null;
             examDetails.questions = selectedQuestions.map((q) => ({ row: q }));
         } else {
-            const randomQuestionRows = generateRandomQuestionRows(questionCount, startPoint, endPoint)
-                .sort((a, b) => a - b)
-                .map((q) => ({
-                    row: q,
-                }));
+            const randomQuestionRows = generateRandomQuestionRows(questionCount, startPoint, endPoint).map((q) => ({
+                row: q,
+            }));
 
             examDetails.questions = randomQuestionRows;
         }
@@ -222,8 +224,6 @@ export const getActiveExam = async (req: Request, res: Response) => {
         }
 
         const userAnswers = activeExam.getCachedAnswers();
-        activeExam.details.questions.sort((a, b) => a.row - b.row);
-        userAnswers.sort((a, b) => a.question - b.question);
 
         return res
             .status(200)
@@ -260,7 +260,6 @@ export const getAllQuestionsForActiveExam = async (req: Request, res: Response) 
 
         const { questions, images } = await activeExam.getQuestions();
 
-        questions.sort((a, b) => a.row - b.row);
         return res.status(200).json({ questions, images }).end();
     } catch (err) {
         const errorHandler = new ErrorManager(res);
@@ -444,7 +443,6 @@ export const getFinishedExam = async (req: Request, res: Response) => {
             return errorManager.handleError(new APIError("exam", "payload", "EXAM_NOT_FOUND"));
         }
 
-        finishedExam.details.questions.sort((a, b) => a.row - b.row);
         let resData = finishedExam.toJSON();
         delete resData._cache;
 
@@ -478,7 +476,6 @@ export const getAllQuestionsForFinishedExam = async (req: Request, res: Response
 
         const { questions, images } = await exam.getQuestions();
 
-        questions.sort((a, b) => a.row - b.row);
         return res.status(200).json({ questions, images, userAnswers: exam.results.answers }).end();
     } catch (err) {
         const errorHandler = new ErrorManager(res);
