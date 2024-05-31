@@ -7,7 +7,9 @@ config();
 mongoose.connect(process.env.MONGO_URI!);
 mongoose.connection.once("connected", () => {
     console.log("Connected to MongoDB");
-    readdirSync("./storage/source").forEach((path) => {
-        storeExam(path);
-    });
+    storeExam("10");
+    storeExam("11");
+    // readdirSync("./storage/source").forEach((path) => {
+    //     storeExam(path);
+    // });
 });

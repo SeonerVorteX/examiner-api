@@ -394,11 +394,7 @@ export const finishActiveExam = async (req: Request, res: Response) => {
             return errorManager.handleError(new APIError("system", "authorization", "NOT_AUTHORIZED"));
         }
 
-        console.log(Date.now());
-
         await activeExam.calculateResults();
-
-        console.log(Date.now());
 
         res.status(200).end();
 

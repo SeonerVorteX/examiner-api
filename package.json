@@ -10,8 +10,16 @@
     "store": "ts-node ./storage/index.ts",
     "build": "tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeonerVorteX/examiner-api.git"
+  },
   "author": "Mehdi Safarzade <contact@mehdisafarzade.dev>",
   "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/SeonerVorteX/examiner-api/issues"
+  },
+  "homepage": "https://github.com/SeonerVorteX/examiner-api#readme",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.7.5",

@@ -41,21 +41,10 @@ export class ActiveExam {
     }
 
     public async getQuestions(shorted?: boolean) {
-        // let examQuestions = this.details.questions;
-        // let questions: QuestionType[] = [];
-        // let images: ImageType[] = [];
-
-        // for (let examQuestion of examQuestions) {
-        //     const { question, images: questionImages } = await this.getQuestion(examQuestion.row);
-        //     questions.push(question);
-        //     images = images.concat(questionImages);
-        // }
-
         let { questions: QuestionModel, images: ImageModel } = getModelById(this.details.examId);
         let examQuestions = this.details.questions;
 
         if (shorted) {
-            // return only questions (without its content, just answers)
             let questions = await QuestionModel.aggregate([
                 {
                     $match: {
@@ -168,7 +157,6 @@ export class ActiveExam {
         let pointPerCorrect = 2;
 
         let { questions } = await this.getQuestions(true);
-        console.log(questions);
 
         for (let answer of answers) {
             let { question, index } = answer;
