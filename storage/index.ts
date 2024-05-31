@@ -4,12 +4,10 @@ import { config } from "dotenv";
 import { readdirSync } from "fs";
 config();
 
-mongoose.connect(process.env.MONGO_URI!);
+mongoose.connect(process.env.MONGO_URL!);
 mongoose.connection.once("connected", () => {
     console.log("Connected to MongoDB");
-    storeExam("10");
-    storeExam("11");
-    // readdirSync("./storage/source").forEach((path) => {
-    //     storeExam(path);
-    // });
+    readdirSync("./storage/source").forEach((path) => {
+        storeExam(path);
+    });
 });
