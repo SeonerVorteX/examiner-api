@@ -73,6 +73,13 @@ export class ActiveExam {
             let imgValues: number[] = [];
             let questions = await QuestionModel.find({ row: { $in: examQuestions.map((q) => q.row) } });
             let showAnswer = this.details.settings.showAnswer;
+            let questionMap: typeof questions = [];
+
+            questions.forEach((question) => {
+                questionMap[question.row] = question;
+            });
+
+            let sortedQuestions = examQuestions.map((q) => questionMap[q.row]);
 
             for (let question of questions) {
                 if (!showAnswer) delete question.answer;
@@ -89,7 +96,7 @@ export class ActiveExam {
                 $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
             });
 
-            return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
+            return { questions: sortedQuestions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
         }
     }
 
