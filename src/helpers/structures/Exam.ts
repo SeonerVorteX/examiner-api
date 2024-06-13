@@ -48,8 +48,8 @@ export class ActiveExam {
             let questions = await QuestionModel.aggregate([
                 {
                     $match: {
-                        row: { $in: examQuestions.map((q) => q.row) },
-                    },
+                        row: { $in: examQuestions.map((q) => q.row) }
+                    }
                 },
                 {
                     $project: {
@@ -60,12 +60,12 @@ export class ActiveExam {
                                 input: "$options",
                                 as: "option",
                                 in: {
-                                    isCorrect: "$$option.isCorrect",
-                                },
-                            },
-                        },
-                    },
-                },
+                                    isCorrect: "$$option.isCorrect"
+                                }
+                            }
+                        }
+                    }
+                }
             ]);
 
             return { questions };
@@ -93,7 +93,7 @@ export class ActiveExam {
             }
 
             let images = await ImageModel.find({
-                $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
+                $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }]
             });
 
             return { questions: sortedQuestions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
@@ -186,7 +186,7 @@ export class ActiveExam {
             emptyCount,
             score,
             scorePercent,
-            answers: answers.map((a) => ({ question: { row: a.question }, index: a.index })),
+            answers: answers.map((a) => ({ question: { row: a.question }, index: a.index }))
         });
     }
 
@@ -236,7 +236,7 @@ export class ActiveExam {
             user: this.userId,
             details: this.details,
             results: this.results,
-            _cache: cache ? this._cache : undefined,
+            _cache: cache ? this._cache : undefined
         };
     }
 }
@@ -293,7 +293,7 @@ export class FinishedExam {
         }
 
         let images = await ImageModel.find({
-            $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }],
+            $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }]
         });
 
         return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
@@ -331,7 +331,7 @@ export class FinishedExam {
             isActive: this.isActive,
             user: this.userId,
             details: this.details,
-            results: this.results,
+            results: this.results
         };
     }
 }

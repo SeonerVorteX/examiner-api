@@ -17,12 +17,12 @@ export const generateTokens = async (user: UserType): Promise<{ accessToken: str
 
 export const generateAccessToken = async (userId: string, jwtId: string): Promise<string> => {
     const payload = {
-        userId,
+        userId
     };
 
     let token = jwt.sign(payload, JWT_ACCESS_TOKEN_SECRET, {
         expiresIn: "1d",
-        jwtid: jwtId,
+        jwtid: jwtId
     });
 
     return token;
@@ -37,7 +37,7 @@ export const verifyAccessToken = async (token: string): Promise<any> => {
 
             const user = await getUserById(userId).select("+authentication.accessToken");
 
-            if (user.authentication.accessToken === token) {
+            if (user && user.authentication.accessToken === token) {
                 return resolve(true);
             } else {
                 return resolve(false);
