@@ -34,14 +34,15 @@ export async function scrapeUserInformation(
 
     const response = await axios.post("/", formData, {
         headers: {
-            ...formData.getHeaders(),
+            ...formData.getHeaders()
         },
-        withCredentials: true,
+        withCredentials: true
     });
 
     const $ = cheerio.load(response.data);
 
     const fullname = $(".right-text-2").eq(0).text() || null;
+    const major = $(".right-text-2").eq(1).text() || null;
     const group = $(".right-text-2").eq(2).text() || null;
 
     const formResponse = await axios.get(`/az/cabinet`);
@@ -50,10 +51,26 @@ export async function scrapeUserInformation(
 
     const email = ($$(".form-control").eq(8).val() as string) || null;
 
-    if (!fullname || !group || !email) {
+    if (!fullname || !major || !group || !email) {
         return null;
     } else {
-        return { fullname, email, group: group.split("_")[3], groupName: capitalize(group.split("_")[4]) };
+        let groupNumber = null;
+        const groupName = capitalize(major.split("_")[major.split("_").length - 1]);
+        const parsed = group.split("_");
+
+        if (parsed[parsed.length - 1].match(/\d+/g)) {
+            const secondPart = parsed[parsed.length - 1].split(/[ ]/);
+            groupNumber = secondPart[0];
+        } else {
+            groupNumber = parsed[parsed.length - 2];
+        }
+
+        return {
+            fullname,
+            email,
+            groupName,
+            group: groupNumber
+        };
     }
 }
 

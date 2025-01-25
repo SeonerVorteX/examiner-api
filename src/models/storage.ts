@@ -4,25 +4,20 @@ import { exams } from "../configurations/configs.json";
 export interface QuestionType {
     row: number;
     question: {
-        isImage: boolean;
-        isBoth: boolean;
-        imgValue: number;
-        value: string | number | ObjectId;
+        imageId: number;
+        content: string;
     };
-    answer: Option;
     options: Option[];
 }
 
 interface Option {
     isCorrect: boolean;
-    isImage: boolean;
-    value: string | number | ObjectId;
+    imageId: number;
+    content: string;
 }
 
 export interface ImageType {
     id: number;
-    type: number;
-    bothId?: number;
     data: Buffer;
 }
 
@@ -34,37 +29,23 @@ export interface ExamType {
 }
 
 export const QuestionSchema = new Schema<QuestionType>({
-    row: { type: Number, required: true },
+    row: { type: Number, required: true, unique: true },
     question: {
-        isImage: { type: Boolean, required: true },
-        isBoth: { type: Boolean, default: false },
-        imgValue: {
-            type: Number,
-            required: function () {
-                return this.question.isBoth;
-            },
-        },
-        value: { type: Schema.Types.Mixed, required: true },
-    },
-    answer: {
-        isCorrect: { type: Boolean, required: true },
-        isImage: { type: Boolean, required: true },
-        value: { type: Schema.Types.Mixed, required: true },
+        imageId: { type: Number },
+        content: { type: Schema.Types.Mixed, required: true }
     },
     options: [
         {
             isCorrect: { type: Boolean, required: true },
-            isImage: { type: Boolean, required: true },
-            value: { type: Schema.Types.Mixed, required: true },
-        },
-    ],
+            imageId: { type: Number },
+            content: { type: Schema.Types.Mixed, required: true }
+        }
+    ]
 });
 
 export const ImageSchema = new Schema<ImageType>({
-    id: Number,
-    type: { type: Number, default: 1 },
-    bothId: { type: Number },
-    data: Buffer,
+    id: { type: Number, required: true, unique: true },
+    data: Buffer
 });
 
 export const getModelById = (id: number) => {

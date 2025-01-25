@@ -50,7 +50,7 @@ export const getUserExams = async (req: Request, res: Response) => {
         const identity: RequestIdentity = get(req, "identity");
         const exams = await ExamModel.find({
             user: identity.user._id
-        }).select("-__v -details.questions -results.answers");
+        }).select("-_cache -__v -details.questions -results.answers");
 
         return res
             .status(200)

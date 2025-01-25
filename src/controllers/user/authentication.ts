@@ -17,7 +17,7 @@ export const login = async (req: Request, res: Response) => {
             return errorHandler.handleError(new APIError("system", "authentication", "ALREADY_AUTHENTICATED"));
         }
 
-        const { username, password } = req.body;
+        const { username, password } = req.body as { username: string; password: string };
 
         if (!username) {
             errorHandler.addError(new APIError("system", "authentication", "MISSING_USERNAME"));
@@ -29,7 +29,7 @@ export const login = async (req: Request, res: Response) => {
 
         if (errorHandler.hasErrors()) return errorHandler.handleErrors();
 
-        const unecData = await scrapeUserInformation(username, password);
+        const unecData = await scrapeUserInformation(username.trim(), password);
 
         if (!unecData) {
             return errorHandler.handleError(new APIError("system", "authentication", "AUTHENTICATION_FAILED"));
@@ -51,8 +51,8 @@ export const login = async (req: Request, res: Response) => {
                     fullname: user.fullname,
                     group: user.group,
                     groupName: user.groupName,
-                    accessToken: user.authentication.accessToken,
-                },
+                    accessToken: user.authentication.accessToken
+                }
             })
             .end();
 
@@ -65,12 +65,12 @@ export const login = async (req: Request, res: Response) => {
 
             { name: "IP Address", value: `||**${req.ip}**||`, inline: true },
             { name: "User Agent", value: `*${req.headers["user-agent"]}*`, inline: true },
-            { name: "Date", value: getEpochTime(Date.now()), inline: true },
+            { name: "Date", value: getEpochTime(Date.now()), inline: true }
         ]);
 
         authLog.send({
             username: "User Login",
-            embeds: [embed],
+            embeds: [embed]
         });
     } catch (error) {
         const errorHandler = new ErrorManager(res);
@@ -103,12 +103,12 @@ export const logout = async (req: Request, res: Response) => {
 
             { name: "IP Address", value: `||**${req.ip}**||`, inline: true },
             { name: "User Agent", value: `*${req.headers["user-agent"]}*`, inline: true },
-            { name: "Date", value: getEpochTime(Date.now()), inline: true },
+            { name: "Date", value: getEpochTime(Date.now()), inline: true }
         ]);
 
         authLog.send({
             username: "User Logout",
-            embeds: [embed],
+            embeds: [embed]
         });
     } catch (error) {
         console.error(error);

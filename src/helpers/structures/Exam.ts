@@ -82,19 +82,19 @@ export class ActiveExam {
             let sortedQuestions = examQuestions.map((q) => questionMap[q.row]);
 
             for (let question of questions) {
-                if (!showAnswer) delete question.answer;
+                if (!showAnswer)
+                    question.options = question.options.map((option) => {
+                        delete option.isCorrect;
+                        return option;
+                    });
 
-                if (question.question.isBoth) imgValues.push(question.question.imgValue);
-                if (question.question.isImage) imgValues.push(question.question.value as number);
+                if (question.question.imageId) imgValues.push(question.question.imageId);
                 for (let option of question.options) {
-                    if (!showAnswer) delete option.isCorrect;
-                    if (option.isImage) imgValues.push(option.value as number);
+                    if (option.imageId) imgValues.push(option.imageId);
                 }
             }
 
-            let images = await ImageModel.find({
-                $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }]
-            });
+            let images = await ImageModel.find({ id: { $in: imgValues } });
 
             return { questions: sortedQuestions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
         }
@@ -107,19 +107,19 @@ export class ActiveExam {
         let question = (await QuestionModel.findOne({ row })).toJSON();
         let showAnswer = this.details.settings.showAnswer;
 
-        if (question.question.isBoth) {
-            let image = await ImageModel.findOne({ bothId: question.question.imgValue });
-            images.push(image.toJSON());
-        } else if (question.question.isImage) {
-            let image = await ImageModel.findOne({ id: question.question.value });
+        if (question.question.imageId) {
+            let image = await ImageModel.findOne({ id: question.question.imageId });
             images.push(image.toJSON());
         }
 
-        if (!showAnswer && !getAnswer) delete question.answer;
+        if (!showAnswer && !getAnswer)
+            question.options = question.options.map((option) => {
+                delete option.isCorrect;
+                return option;
+            });
         for (let option of question.options) {
-            if (!showAnswer && !getAnswer) delete option.isCorrect;
-            if (option.isImage) {
-                let image = await ImageModel.findOne({ id: option.value });
+            if (option.imageId) {
+                let image = await ImageModel.findOne({ id: option.imageId });
                 images.push(image.toJSON());
             }
         }
@@ -285,16 +285,13 @@ export class FinishedExam {
         let questions = await QuestionModel.find({ row: { $in: examQuestions.map((q) => q.row) } });
 
         for (let question of questions) {
-            if (question.question.isBoth) imgValues.push(question.question.imgValue);
-            if (question.question.isImage) imgValues.push(question.question.value as number);
+            if (question.question.imageId) imgValues.push(question.question.imageId);
             for (let option of question.options) {
-                if (option.isImage) imgValues.push(option.value as number);
+                if (option.imageId) imgValues.push(option.imageId);
             }
         }
 
-        let images = await ImageModel.find({
-            $or: [{ id: { $in: imgValues } }, { bothId: { $in: imgValues } }]
-        });
+        let images = await ImageModel.find({ id: { $in: imgValues } });
 
         return { questions: questions.map((q) => q.toJSON()), images: images.map((i) => i.toJSON()) };
     }
@@ -305,17 +302,14 @@ export class FinishedExam {
         let images: ImageType[] = [];
         let question = (await QuestionModel.findOne({ row })).toJSON();
 
-        if (question.question.isBoth) {
-            let image = await ImageModel.findOne({ bothId: question.question.imgValue });
-            images.push(image.toJSON());
-        } else if (question.question.isImage) {
-            let image = await ImageModel.findOne({ id: question.question.value });
+        if (question.question.imageId) {
+            let image = await ImageModel.findOne({ id: question.question.imageId });
             images.push(image.toJSON());
         }
 
         for (let option of question.options) {
-            if (option.isImage) {
-                let image = await ImageModel.findOne({ id: option.value });
+            if (option.imageId) {
+                let image = await ImageModel.findOne({ id: option.imageId });
                 images.push(image.toJSON());
             }
         }

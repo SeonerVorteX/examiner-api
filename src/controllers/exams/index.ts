@@ -48,6 +48,7 @@ export const getExam = async (req: Request, res: Response) => {
         }
 
         const { questions } = getModelById(exam.id);
+        console.log(questions);
         const questionCount = await questions.countDocuments();
 
         return res
@@ -102,25 +103,25 @@ export const startExam = async (req: Request, res: Response) => {
         if (selectQuestionsYourself) {
             if (!selectedQuestions) {
                 errorManager.addError(new APIError("exam", "payload", "MISSING_EXAM_DETAILS"), {
-                    p: "selectedQuestions",
+                    p: "selectedQuestions"
                 });
             }
 
             if (selectedQuestions.length !== questionCount) {
                 errorManager.addError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                    m: "question count does not match selected questions",
+                    m: "question count does not match selected questions"
                 });
             }
 
             if (selectedQuestions.some((q) => q < 1 || q > examQuestionCount)) {
                 errorManager.addError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                    m: `selected questions must be between 1 and ${examQuestionCount}`,
+                    m: `selected questions must be between 1 and ${examQuestionCount}`
                 });
             }
 
             if (selectedQuestions.some((q) => typeof q !== "number")) {
                 errorManager.addError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                    m: "selected questions must be numbers",
+                    m: "selected questions must be numbers"
                 });
             }
         } else {
@@ -144,7 +145,7 @@ export const startExam = async (req: Request, res: Response) => {
             showAnswer,
             startPoint,
             endPoint,
-            selectQuestionsYourself,
+            selectQuestionsYourself
         };
 
         if (selectQuestionsYourself) {
@@ -153,7 +154,7 @@ export const startExam = async (req: Request, res: Response) => {
             examDetails.questions = selectedQuestions.map((q) => ({ row: q }));
         } else {
             const randomQuestionRows = generateRandomQuestionRows(questionCount, startPoint, endPoint).map((q) => ({
-                row: q,
+                row: q
             }));
 
             examDetails.questions = randomQuestionRows;
@@ -182,17 +183,17 @@ export const startExam = async (req: Request, res: Response) => {
             {
                 name: "Question Count",
                 value: `*${resData.details.settings.questionCount} (${resData.details.settings.startPoint}-${resData.details.settings.endPoint})*`,
-                inline: true,
+                inline: true
             },
 
             { name: "Start Date", value: getEpochTime(resData.startDate), inline: true },
             { name: "End Date", value: getEpochTime(resData.finishDate), inline: true },
-            { name: "Show Answer", value: `*${resData.details.settings.showAnswer ? "Yes" : "No"}*`, inline: true },
+            { name: "Show Answer", value: `*${resData.details.settings.showAnswer ? "Yes" : "No"}*`, inline: true }
         ]);
 
         examLog.send({
             username: "Exam Started",
-            embeds: [embed],
+            embeds: [embed]
         });
     } catch (err) {
         const errorHandler = new ErrorManager(res);
@@ -283,7 +284,7 @@ export const getQuestionForActiveExam = async (req: Request, res: Response) => {
 
         if (!row) {
             return errorManager.handleError(new APIError("exam", "payload", "MISSING_EXAM_DETAILS"), {
-                p: "question row",
+                p: "question row"
             });
         }
 
@@ -301,7 +302,7 @@ export const getQuestionForActiveExam = async (req: Request, res: Response) => {
 
         if (!rows.includes(row)) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                m: `question ${row} not found in exam questions`,
+                m: `question ${row} not found in exam questions`
             });
         }
 
@@ -344,7 +345,7 @@ export const setAnswersForActiveExam = async (req: Request, res: Response) => {
 
         if (!Array.isArray(answers)) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                m: "answers must be an array",
+                m: "answers must be an array"
             });
         }
 
@@ -352,13 +353,13 @@ export const setAnswersForActiveExam = async (req: Request, res: Response) => {
 
         if (answers.some((a) => !rows.includes(a.question))) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                m: "answers contain invalid question rows",
+                m: "answers contain invalid question rows"
             });
         }
 
         if (answers.some((a) => a.index < 0 || a.index > 5)) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                m: "answers contain invalid indexes",
+                m: "answers contain invalid indexes"
             });
         }
 
@@ -404,16 +405,16 @@ export const finishActiveExam = async (req: Request, res: Response) => {
             {
                 name: "Score",
                 value: `*${activeExam.results.correctCount}/${activeExam.details.settings.questionCount} (${activeExam.results.scorePercent}%)*`,
-                inline: true,
+                inline: true
             },
             { name: "Start Date", value: getEpochTime(activeExam.startDate), inline: true },
             { name: "End Date", value: getEpochTime(Date.now()), inline: true },
-            { name: "Show Answer", value: `*${activeExam.details.settings.showAnswer ? "Yes" : "No"}*`, inline: true },
+            { name: "Show Answer", value: `*${activeExam.details.settings.showAnswer ? "Yes" : "No"}*`, inline: true }
         ]);
 
         examLog.send({
             username: "Exam Finished",
-            embeds: [embed],
+            embeds: [embed]
         });
     } catch (err) {
         const errorHandler = new ErrorManager(res);
@@ -496,7 +497,7 @@ export const getQuestionForFinishedExam = async (req: Request, res: Response) =>
 
         if (!row) {
             return errorManager.handleError(new APIError("exam", "payload", "MISSING_EXAM_DETAILS"), {
-                p: "question row",
+                p: "question row"
             });
         }
 
@@ -511,7 +512,7 @@ export const getQuestionForFinishedExam = async (req: Request, res: Response) =>
 
         if (!rows.includes(row)) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_DETAILS"), {
-                m: `question ${row} not found in exam questions`,
+                m: `question ${row} not found in exam questions`
             });
         }
 
