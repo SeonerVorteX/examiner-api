@@ -58,7 +58,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "mongoose": "^8.0.3",
+    "mongoose": "^8.9.5",
     "passport": "^0.7.0",
     "tough-cookie": "^4.1.4",
     "uuid": "^9.0.1",
