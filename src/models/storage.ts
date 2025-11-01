@@ -49,7 +49,7 @@ export const ImageSchema = new Schema<ImageType>({
 });
 
 export const getModelById = (id: number) => {
-    const exam = exams.find((exam) => exam.id == id);
+    const exam = exams.find((exam) => Number(exam.id) == id);
     const questions = model(`${exam.id}_questions`, QuestionSchema);
     const images = model(`${exam.id}_images`, ImageSchema);
     return { questions, images };

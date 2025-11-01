@@ -39,7 +39,7 @@ export const getExam = async (req: Request, res: Response) => {
         const exam = exams
             .filter((exam) => exam.eligibleGroups && exam.eligibleGroups.includes(group))
             .map((exam) => ({ id: exam.id, title: exam.title }))
-            .find((exam) => exam.id == examId) as {
+            .find((exam) => Number(exam.id) == examId) as unknown as {
             id: number;
             title: string;
         };
@@ -77,7 +77,7 @@ export const startExam = async (req: Request, res: Response) => {
         }
         const exam = exams
             .filter((exam) => exam.eligibleGroups && exam.eligibleGroups.includes(group))
-            .find((exam) => exam.id == examId) as {
+            .find((exam) => Number(exam.id) == examId) as unknown as {
             id: number;
             title: string;
             shortName: string;
