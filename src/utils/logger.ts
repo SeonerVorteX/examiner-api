@@ -33,7 +33,7 @@ const logger: APILogger = createLogger({
         prettyPrint(),
         colorize(),
         padLevels({ levels: options.levels }),
-        printf((msg) => `[${msg.timestamp}] ${msg.level}: ${msg.message.trim()}`)
+        printf((msg) => `[${msg.timestamp}] ${msg.level}: ${msg.message}`)
     ),
     transports: [
         new transports.Console({ level: "console" }),

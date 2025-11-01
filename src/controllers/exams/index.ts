@@ -11,13 +11,14 @@ import logger from "../../utils/logger";
 import { ActiveExam, FinishedExam } from "../../helpers/structures/Exam";
 import manager from "../../utils/manager";
 import { examLog } from "../../utils/webhook";
+import { Types } from "mongoose";
 
 export const getAllExams = async (req: Request, res: Response) => {
     try {
         const user = get(req, "identity.user") as UserType;
         const group = user.group;
         const data = exams
-            .filter((exam) => exam.eligibleGroups.includes(group))
+            .filter((exam) => exam.eligibleGroups && exam.eligibleGroups.includes(group))
             .map((exam) => ({ id: exam.id, title: exam.title }));
 
         return res.status(200).json(data).end();
@@ -36,7 +37,7 @@ export const getExam = async (req: Request, res: Response) => {
         const user = get(req, "identity.user") as UserType;
         const group = user.group;
         const exam = exams
-            .filter((exam) => exam.eligibleGroups.includes(group))
+            .filter((exam) => exam.eligibleGroups && exam.eligibleGroups.includes(group))
             .map((exam) => ({ id: exam.id, title: exam.title }))
             .find((exam) => exam.id == examId) as {
             id: number;
@@ -74,7 +75,9 @@ export const startExam = async (req: Request, res: Response) => {
         if (!examId || isNaN(examId) || examId < 1) {
             return errorManager.handleError(new APIError("exam", "payload", "INVALID_EXAM_ID"));
         }
-        const exam = exams.filter((exam) => exam.eligibleGroups.includes(group)).find((exam) => exam.id == examId) as {
+        const exam = exams
+            .filter((exam) => exam.eligibleGroups && exam.eligibleGroups.includes(group))
+            .find((exam) => exam.id == examId) as {
             id: number;
             title: string;
             shortName: string;
@@ -163,7 +166,7 @@ export const startExam = async (req: Request, res: Response) => {
         const id = (await ExamModel.countDocuments()) + 1;
 
         examData.id = id;
-        examData.user = user._id;
+        examData.user = new Types.ObjectId(user._id.toString());
         examData.details = examDetails;
         examData.isActive = true;
         examData.startDate = Date.now();

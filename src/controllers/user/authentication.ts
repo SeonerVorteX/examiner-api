@@ -9,6 +9,7 @@ import { getEpochTime, scrapeUserInformation } from "../../utils";
 import { authLog } from "../../utils/webhook";
 import logger from "../../utils/logger";
 import { MessageEmbed } from "discord.js";
+import { Types } from "mongoose";
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -40,7 +41,10 @@ export const login = async (req: Request, res: Response) => {
         // Find or create user
         const user = await findOrCreateUser(email, { fullname, group, groupName });
 
-        const { accessToken } = await generateTokens(user.toObject());
+        const { accessToken } = await generateTokens({
+            ...user,
+            _id: new Types.ObjectId(user._id.toString()),
+        });
         user.authentication.accessToken = accessToken;
 
         res.status(200)
@@ -73,6 +77,7 @@ export const login = async (req: Request, res: Response) => {
             embeds: [embed]
         });
     } catch (error) {
+        console.log(error);
         const errorHandler = new ErrorManager(res);
         logger.error("An error occured while logging user in");
         logger.error(`${error.name}: ${error.message}`);

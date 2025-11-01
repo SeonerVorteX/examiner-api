@@ -26,8 +26,8 @@ app.use(
         credentials: true,
     })
 );
-app.use(flash());
-app.use(compression());
+// app.use(flash());
+// app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(requestLogger);

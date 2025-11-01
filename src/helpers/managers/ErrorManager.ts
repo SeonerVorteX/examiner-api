@@ -50,7 +50,7 @@ export class ErrorManager {
         }
 
         let payload: ErrorPayload = { code, message };
-        return this.res.status(status).json({ errors: { [field]: payload } });
+        return this.res.status(status || 500).json({ errors: { [field]: payload } });
     }
 
     public handleErrors() {

@@ -1,6 +1,7 @@
 import _ from "lodash";
+import { Types } from "mongoose";
 import { Document, model } from "mongoose";
-import { ObjectId, Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { ExamDetails, ExamResults } from "types/types";
 
 export interface ExamInterface extends Document {
@@ -9,7 +10,7 @@ export interface ExamInterface extends Document {
     finishDate: number;
     finishedAt?: number;
     isActive: boolean;
-    user: ObjectId;
+    user: Types.ObjectId;
     details: ExamDetails;
     results?: ExamResults;
     _cache: {

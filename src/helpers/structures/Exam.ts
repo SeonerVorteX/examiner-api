@@ -1,7 +1,7 @@
 import ExamManager from "helpers/managers/ExamManager";
 import { UserModel, ExamModel, ExamInterface, ImageType, QuestionType, getModelById } from "../../models";
 import { UserType } from "models/user";
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import { ExamDetails, ExamResults } from "types/types";
 import logger from "../../utils/logger";
 
@@ -10,7 +10,7 @@ export class ActiveExam {
     public startDate: number;
     public finishDate: number;
     public isActive: boolean;
-    public userId: ObjectId;
+    public userId: Types.ObjectId;
     public details: ExamDetails;
     public results?: ExamResults;
     public user?: UserType | null;
@@ -26,7 +26,7 @@ export class ActiveExam {
         this.startDate = data.startDate;
         this.finishDate = data.finishDate;
         this.isActive = data.isActive;
-        this.userId = data.user;
+        this.userId = new Types.ObjectId(data.user.toString());
         this.details = data.details;
         this._cache = data._cache;
         if (data.results) this.results = data.results;
@@ -246,7 +246,7 @@ export class FinishedExam {
     public startDate: number;
     public finishDate: number;
     public isActive: boolean;
-    public userId: ObjectId;
+    public userId: Types.ObjectId;
     public details: ExamDetails;
     public results: ExamResults;
     public user?: UserType | null;
@@ -268,7 +268,7 @@ export class FinishedExam {
         this.startDate = data.startDate;
         this.finishDate = data.finishDate;
         this.isActive = data.isActive;
-        this.userId = data.user;
+        this.userId = new Types.ObjectId(data.user.toString());
         this.details = data.details;
 
         if (data.results) this.results = data.results;

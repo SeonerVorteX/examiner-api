@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import logger from "./logger";
 import Axios from "axios";
 import FormData from "form-data";
-import cheerio from "cheerio";
+import { load } from "cheerio";
 import { wrapper } from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
 config();
@@ -39,7 +39,7 @@ export async function scrapeUserInformation(
         withCredentials: true
     });
 
-    const $ = cheerio.load(response.data);
+    const $ = load(response.data);
 
     const fullname = $(".right-text-2").eq(0).text() || null;
     const major = $(".right-text-2").eq(1).text() || null;
@@ -47,7 +47,7 @@ export async function scrapeUserInformation(
 
     const formResponse = await axios.get(`/az/cabinet`);
 
-    const $$ = cheerio.load(formResponse.data);
+    const $$ = load(formResponse.data);
 
     const email = ($$(".form-control").eq(8).val() as string) || null;
 

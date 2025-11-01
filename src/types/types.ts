@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import { Logger } from "winston";
 
 export interface RequestIdentity {
@@ -6,7 +6,7 @@ export interface RequestIdentity {
 }
 
 export interface UserType {
-    _id: ObjectId;
+    _id: Types.ObjectId;
     email: string;
     group: string;
     groupName: string;
